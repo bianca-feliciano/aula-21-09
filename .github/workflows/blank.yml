@@ -1,17 +1,13 @@
-
-# This is a basic workflow to help you get started with Actions
+```yaml
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Runs on pushes and pull requests to the "main" branch
   push:
     branches: ["main"]
 
   pull_request:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -19,16 +15,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository
+      # Baixa o código do repositório
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Sets up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Faz login no Docker Hub
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
         with:
-          python-version: "3.13"
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Runs the Python script
-      - name: Run hello.py
-        run: python hello.py
+      # Cria a imagem Docker
+      - name: Build da imagem
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/meu-hello-python:latest .
+
+      # Envia a imagem para o Docker Hub
+      - name: Push para Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/meu-hello-python:latest
+```
